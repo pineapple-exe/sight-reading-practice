@@ -1,0 +1,21 @@
+﻿@page
+@model TrebleClefPracticeModel
+@{
+    ViewData["Title"] = "Treble Clef Practice";
+}
+
+<img id="treble-clef" src="~/img/trebleClef.png" alt="Treble clef" />
+<canvas id="sheet-music" width="1200" height="240"></canvas>
+
+<form id="notes-form">
+    <input class="answer-box" type="text" maxlength="2" name="note1">
+    <input class="answer-box" type="text" maxlength="2" name="note2">
+    <input class="answer-box" type="text" maxlength="2" name="note3">
+    <input class="answer-box" type="text" maxlength="2" name="note4">
+    <div class="button-container">
+        <input id="submit" type="button" onclick="submitAnswer()" value="Submit">
+    </div>
+</form>
+
+<script src="~/js/trebleClef.js"></script>
+<script src="~/js/sheet.js"></script>

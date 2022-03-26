@@ -1,0 +1,61 @@
+#bass-clef, #treble-clef {
+    display: none;
+}
+
+#notes-form {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+#notes-form > input[type=text] {
+    width: 5rem;
+}
+
+input[type=text][name=note1] {
+    margin-right: 8rem;
+}
+
+input[type=text][name=note2] {
+    margin-right: 8rem;
+}
+
+input[type=text][name=note3] {
+    margin-right: 7rem;
+}
+
+input[type=text][name=note4] {
+    margin-right: 5rem;
+}
+
+.correct {
+    border: 2px solid #72E900;
+    border-radius: 4px;
+}
+
+.incorrect {
+    border: 2px solid #FF3C11;
+    border-radius: 4px;
+}
+
+#notes-form > div.button-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+input[type=button] {
+    width: 6rem;
+    height: 3rem;
+    margin-top: 4rem;
+    margin-left: 17rem;
+    margin-bottom: 3rem;
+    background-color: #1FA99D; /* Green */
+    border: none;
+    color: white;
+    font-size: 16px;
+}
+
+input[type=button]:hover {
+    background-color: #D78E11;
+}
