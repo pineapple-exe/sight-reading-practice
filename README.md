@@ -6,4 +6,7 @@ Click on Bass Clef or Treble Clef to access a randomized exercise in chosen cont
 
 ![image](https://user-images.githubusercontent.com/70913967/160592776-de36c8af-354b-4662-836f-927f9cc84647.png)
 
+
+Each exercise will consist of four notes and zero to four key signatures.
+
 ![image](https://user-images.githubusercontent.com/70913967/160592799-b04887da-4f43-45b0-a652-f7200aee0371.png)
