@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using SightReadingPractice.Data;
+using SightReadingPractice.Domain.Interactors;
+using SightReadingPractice.Domain.Repositories;
+using SightReadingPractice.Data.Repositories;
 
 namespace SightReadingPractice.WebApp
 {
@@ -28,6 +28,10 @@ namespace SightReadingPractice.WebApp
             services.AddSwaggerGen();
 
             services.AddControllers();
+
+            services.AddDbContext<SightReadingPracticeDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddTransient<NoteExerciseInteractor>();
+            services.AddTransient<INoteExerciseResultRepository, NoteExerciseResultRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

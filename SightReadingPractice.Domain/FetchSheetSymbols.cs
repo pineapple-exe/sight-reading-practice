@@ -44,7 +44,7 @@ namespace SightReadingPractice.Domain
             return keySignatures.ToArray();
         }
 
-        public static bool IsOutsideBound(int septimaArea, char tone, ClefType clefType)
+        public static bool IsOutsideBound(int septimaArea, string tone, ClefType clefType)
         {
             bool outsideUpperBound;
             bool outsideLowerBound;
@@ -69,7 +69,7 @@ namespace SightReadingPractice.Domain
 
             while (notes.Count < howMany)
             {
-                char tone = septimaRange[random.Next(0, septimaRange.Length)];
+                string tone = septimaRange[random.Next(0, septimaRange.Length)].ToString();
                 int septimaArea = septimaAreas[random.Next(0, septimaAreas.Length)];
 
                 if (!IsOutsideBound(septimaArea, tone, clefType))

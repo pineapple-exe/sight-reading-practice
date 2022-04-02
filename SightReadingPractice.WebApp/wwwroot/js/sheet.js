@@ -32,14 +32,14 @@ window.onload = () => {
 }
 
 const translateNotes = (notes, keySignatures) => {
-    const naiveTones = notes.map(n => n.tone);
+    const naiveTones = [...notes];
     const keySignaturesTones = keySignatures.map(k => k.tone);
     let finalTones = [];
 
     naiveTones.forEach(nt => {
-        if (keySignaturesTones.includes(nt)) {
-            const signature = keySignatures.find(ks => ks.tone === nt).signature;
-            finalTones.push(nt + signature);
+        if (keySignaturesTones.includes(nt.tone)) {
+            const signature = keySignatures.find(ks => ks.tone === nt.tone).signature;
+            finalTones.push({ tone: nt + signature, septimaArea: nt.septimaArea });
         } else {
             finalTones.push(nt);
         }
@@ -53,42 +53,66 @@ const translateNotes = (notes, keySignatures) => {
     ];
 
     naiveTranslationsToProper.forEach(ntp => {
-        if (finalTones.some(ft => ft === ntp.Naive)) {
-            ft = ntp.Proper;
+        if (finalTones.some(ft => ft.tone === ntp.Naive)) {
+            ft.tone = ntp.Proper;
         }
     });
 
     return finalTones;
 }
 
+const postExerciseResult = (dateTime, userAnswers, actualTones) => {
+    let exerciseResult = [];
+
+    for (let i = 0; i < userAnswers.length; i++) {
+        exerciseResult.push({
+            Note: actualTones[i],
+            Success: userAnswers[i].toLowerCase() === actualTones[i].toLowerCase()
+        });
+    }
+
+    fetch('/SightReadingPractice/exerciseResult', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ DateTime: dateTime, ExerciseResult: exerciseResult})
+    });
+}
+
 const submitAnswer = () => {
-    const answersElements = document.getElementsByClassName('answer-box');
-    const idealAnswers = translateNotes(notes, keySignatures);
-    let idealCount = 0;
+    const dateTime = Date.now();
+
+    const answerElements = document.getElementsByClassName('answer-box');
     const submitButton = document.getElementById('submit');
+
+    const userAnswers = answerElements.map(e => e.value);
+    const actualTones = translateNotes(notes, keySignatures);
+
+    let idealCount = 0;
+
+    postExerciseResult(dateTime, userAnswers, actualTones);
 
     if (submitButton.value === 'Next') {
         location.reload();
         submitButton.value = 'Submit';
 
-        for (let i = 0; i < answersElements.length; i++) {
-            answersElements[i].disabled = false;
+        for (let i = 0; i < answerElements.length; i++) {
+            answerElements[i].disabled = false;
         }
     }
 
-    for (let i = 0; i < answersElements.length; i++) {
-        if (answersElements[i].value.toLowerCase() == idealAnswers[i].toLowerCase()) {
-            answersElements[i].classList.remove('incorrect');
-            answersElements[i].classList.add('correct');
-            answersElements[i].disabled = true;
+    for (let i = 0; i < userAnswers.length; i++) {
+        if (userAnswers[i].toLowerCase() == actualTones[i].tone.toLowerCase()) {
+            userAnswers[i].classList.remove('incorrect');
+            userAnswers[i].classList.add('correct');
+            userAnswers[i].disabled = true;
             idealCount++;
         } else {
-            answersElements[i].classList.remove('correct');
-            answersElements[i].classList.add('incorrect');
+            answerElements[i].classList.remove('correct');
+            answerElements[i].classList.add('incorrect');
         }
     }
 
-    if (idealCount === idealAnswers.length) {
+    if (idealCount === actualTones.length) {
         submitButton.value = 'Next';
     }
 }
