@@ -32,16 +32,16 @@ window.onload = () => {
 }
 
 const translateNotes = (notes, keySignatures) => {
-    const naiveTones = [...notes];
+    const naiveNotes = [...notes];
     const keySignaturesTones = keySignatures.map(k => k.tone);
-    let finalTones = [];
+    let finalNotes = [];
 
-    naiveTones.forEach(nt => {
+    naiveNotes.forEach(nt => {
         if (keySignaturesTones.includes(nt.tone)) {
             const signature = keySignatures.find(ks => ks.tone === nt.tone).signature;
-            finalTones.push({ tone: nt + signature, septimaArea: nt.septimaArea });
+            finalNotes.push({ tone: nt.tone + signature, septimaArea: nt.septimaArea });
         } else {
-            finalTones.push(nt);
+            finalNotes.push(nt);
         }
     });
 
@@ -53,12 +53,12 @@ const translateNotes = (notes, keySignatures) => {
     ];
 
     naiveTranslationsToProper.forEach(ntp => {
-        if (finalTones.some(ft => ft.tone === ntp.Naive)) {
-            ft.tone = ntp.Proper;
+        if (finalNotes.some(fn => fn.tone === ntp.Naive)) {
+            fn.tone = ntp.Proper;
         }
     });
 
-    return finalTones;
+    return finalNotes;
 }
 
 const postExerciseResult = (dateTime, userAnswers, actualTones) => {
@@ -67,24 +67,31 @@ const postExerciseResult = (dateTime, userAnswers, actualTones) => {
     for (let i = 0; i < userAnswers.length; i++) {
         exerciseResult.push({
             Note: actualTones[i],
-            Success: userAnswers[i].toLowerCase() === actualTones[i].toLowerCase()
+            Success: userAnswers[i].toLowerCase() === actualTones[i].tone.toLowerCase()
         });
     }
 
-    fetch('/SightReadingPractice/exerciseResult', {
+    const inputModel = { DateTime: dateTime.toJSON(), ExerciseResult: exerciseResult };
+
+    console.log(JSON.stringify(inputModel));
+
+    fetch('api/SightReadingPractice/exerciseResult', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ DateTime: dateTime, ExerciseResult: exerciseResult})
+        body: JSON.stringify(inputModel)
     });
 }
 
 const submitAnswer = () => {
-    const dateTime = Date.now();
+    const dateTime = new Date(Date.now());
 
     const answerElements = document.getElementsByClassName('answer-box');
     const submitButton = document.getElementById('submit');
 
-    const userAnswers = answerElements.map(e => e.value);
+    let userAnswers = [];
+    for (let i = 0; i < answerElements.length; i++) {
+        userAnswers.push(answerElements[i].value);
+    }
     const actualTones = translateNotes(notes, keySignatures);
 
     let idealCount = 0;
@@ -102,9 +109,9 @@ const submitAnswer = () => {
 
     for (let i = 0; i < userAnswers.length; i++) {
         if (userAnswers[i].toLowerCase() == actualTones[i].tone.toLowerCase()) {
-            userAnswers[i].classList.remove('incorrect');
-            userAnswers[i].classList.add('correct');
-            userAnswers[i].disabled = true;
+            answerElements[i].classList.remove('incorrect');
+            answerElements[i].classList.add('correct');
+            answerElements[i].disabled = true;
             idealCount++;
         } else {
             answerElements[i].classList.remove('correct');

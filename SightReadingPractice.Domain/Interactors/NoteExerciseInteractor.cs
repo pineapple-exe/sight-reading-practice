@@ -20,7 +20,7 @@ namespace SightReadingPractice.Domain.Interactors
             {
                 NoteExerciseResult entity = new();
 
-                entity.DateTime = exerciseResultInputModel.DateTime;
+                entity.DateTime = exerciseResultInputModel.DateTime.ToLocalTime();
                 entity.ActualTone = r.Note.Tone;
                 entity.SeptimaArea = r.Note.SeptimaArea;
                 entity.Success = r.Success;
