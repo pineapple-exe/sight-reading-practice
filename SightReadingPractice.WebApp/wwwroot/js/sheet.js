@@ -86,6 +86,16 @@ const submitAnswer = () => {
     const answerElements = document.getElementsByClassName('answer-box');
     const submitButton = document.getElementById('submit');
 
+    if (submitButton.value === 'Next') {
+        location.reload();
+        submitButton.value = 'Submit';
+
+        for (let i = 0; i < answerElements.length; i++) {
+            answerElements[i].disabled = false;
+        }
+        return;
+    }
+
     let userAnswers = [];
     for (let i = 0; i < answerElements.length; i++) {
         userAnswers.push(answerElements[i].value);
@@ -94,16 +104,7 @@ const submitAnswer = () => {
 
     let idealCount = 0;
 
-    if (submitButton.value === 'Next') {
-        location.reload();
-        submitButton.value = 'Submit';
-
-        for (let i = 0; i < answerElements.length; i++) {
-            answerElements[i].disabled = false;
-        }
-    } else {
-        postExerciseResult(dateTime, userAnswers, actualTones);
-    }
+    postExerciseResult(dateTime, userAnswers, actualTones);
 
     for (let i = 0; i < userAnswers.length; i++) {
         if (userAnswers[i].toLowerCase() == actualTones[i].tone.toLowerCase()) {
