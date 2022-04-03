@@ -71,8 +71,6 @@ const postExerciseResult = (dateTime, userAnswers, actualTones) => {
 
     const inputModel = { ClefType: clefType, DateTime: dateTime.toJSON(), ExerciseResult: exerciseResult };
 
-    console.log(JSON.stringify(inputModel));
-
     fetch('api/SightReadingPractice/exerciseResult', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
