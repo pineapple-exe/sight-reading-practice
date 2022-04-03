@@ -6,10 +6,10 @@ namespace BassClefPractice.Domain.Tests.Unit
     public class Tests
     {
         [Theory]
-        [InlineData("f", -1, (ClefType)0)]
-        [InlineData("g", -1, (ClefType)0)]
-        [InlineData("a", 1, (ClefType)0)]
-        [InlineData("b", 1, (ClefType)0)]
+        [InlineData("F", -1, ClefType.Bass)]
+        [InlineData("G", -1, ClefType.Bass)]
+        [InlineData("A", 1, ClefType.Bass)]
+        [InlineData("B", 1, ClefType.Bass)]
         public void IsOutsideBound_OnlyInvalidNotes_UnivocallyTrue(string tone, int septimaArea, ClefType clefType)
         {
             //Act
