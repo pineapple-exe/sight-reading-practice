@@ -53,9 +53,7 @@ const translateNotes = (notes, keySignatures) => {
     ];
 
     naiveTranslationsToProper.forEach(ntp => {
-        if (finalNotes.some(fn => fn.tone === ntp.Naive)) {
-            fn.tone = ntp.Proper;
-        }
+        finalNotes.filter(fn => fn.tone === ntp.Naive).forEach(fn => fn.tone = ntp.Proper);
     });
 
     return finalNotes;
@@ -71,7 +69,7 @@ const postExerciseResult = (dateTime, userAnswers, actualTones) => {
         });
     }
 
-    const inputModel = { DateTime: dateTime.toJSON(), ExerciseResult: exerciseResult };
+    const inputModel = { ClefType: clefType, DateTime: dateTime.toJSON(), ExerciseResult: exerciseResult };
 
     console.log(JSON.stringify(inputModel));
 

@@ -10,10 +10,10 @@ namespace SightReadingPractice.Data
 
         public DbSet<NoteExerciseResult> NoteExerciseResults { get; set; }
 
-        //public SightReadingPracticeDbContext()
-        //{
+        public SightReadingPracticeDbContext()
+        {
 
-        //}
+        }
 
         public SightReadingPracticeDbContext(DbContextOptions<SightReadingPracticeDbContext> contextOptions) : base(contextOptions)
         {
@@ -25,10 +25,10 @@ namespace SightReadingPractice.Data
         //    _connectionString = connectionString;
         //}
 
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    optionsBuilder.UseSqlServer(optionsBuilder.);
-        //}
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer();
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
