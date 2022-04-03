@@ -94,8 +94,6 @@ const submitAnswer = () => {
 
     let idealCount = 0;
 
-    postExerciseResult(dateTime, userAnswers, actualTones);
-
     if (submitButton.value === 'Next') {
         location.reload();
         submitButton.value = 'Submit';
@@ -103,6 +101,8 @@ const submitAnswer = () => {
         for (let i = 0; i < answerElements.length; i++) {
             answerElements[i].disabled = false;
         }
+    } else {
+        postExerciseResult(dateTime, userAnswers, actualTones);
     }
 
     for (let i = 0; i < userAnswers.length; i++) {
