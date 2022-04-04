@@ -6,8 +6,6 @@ namespace SightReadingPractice.Data
 {
     public class SightReadingPracticeDbContext : DbContext
     {
-        //private string _connectionString = "Server=localhost;Database=SightReadingPractice;Trusted_Connection=True;";
-
         public DbSet<NoteExerciseResult> NoteExerciseResults { get; set; }
 
         public SightReadingPracticeDbContext()
@@ -19,11 +17,6 @@ namespace SightReadingPractice.Data
         {
 
         }
-
-        //public SightReadingPracticeDbContext(string connectionString)
-        //{
-        //    _connectionString = connectionString;
-        //}
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
