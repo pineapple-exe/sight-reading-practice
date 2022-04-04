@@ -15,10 +15,12 @@ namespace BassClefPractice.WebApp
             return FetchSheetSymbols.CreateExercise(new Random(), clefType);
         }
 
-        //[HttpGet("sheetSymbolsTest")]
-        //public SheetSymbolsOutputModel GetSheetSymbolsTest()
-        //{
-        //    return FetchSheetSymbols.CreateExerciseTest();
-        //}
+        [HttpPost("exerciseResult")]
+        public IActionResult AddExerciseResult(ExerciseResultInputModel exerciseResult)
+        {
+            _noteExerciseInteractor.AddExerciseResult(exerciseResult);
+
+            return Ok();
+        }
     }
 }
