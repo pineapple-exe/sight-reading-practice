@@ -64,12 +64,13 @@ namespace SightReadingPractice.Domain
 
             while (notes.Count < howMany)
             {
-                string tone = septimaRange[random.Next(0, septimaRange.Length)].ToString();
+                string tone = septimaRange[random.Next(0, septimaRange.Length)];
                 int septimaArea = septimaAreas[random.Next(0, septimaAreas.Length)];
+                Note note = new(tone, septimaArea);
 
-                if (!IsOutsideBound(septimaArea, tone, clefType) && !notes.Any(n => n.Tone == tone && n.SeptimaArea == septimaArea))
+                if (!IsOutsideBound(septimaArea, tone, clefType) && !notes.Any(n => Equals(n, note)))
                 {
-                    notes.Add(new Note(tone, septimaArea));
+                    notes.Add(note);
                 }
             }
 
