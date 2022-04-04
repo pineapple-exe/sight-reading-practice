@@ -23,7 +23,7 @@ const getExercise = () => {
             drawClef(11, 0, 111);
             drawStaff(rowHeight, oneOuterSpace);
             drawKeySignatures(keySignatures, symbolStep, keySignatureYcoordinate);
-            drawNotes(notes, symbolStep, noteYcoordinate, clefType);  
+            drawNotes(notes, symbolStep, noteYcoordinate, clefType);
         });
 }
 
@@ -32,16 +32,16 @@ window.onload = () => {
 }
 
 const translateNotes = (notes, keySignatures) => {
-    const naiveTones = notes.map(n => n.tone);
+    const naiveNotes = [...notes];
     const keySignaturesTones = keySignatures.map(k => k.tone);
-    let finalTones = [];
+    let finalNotes = [];
 
-    naiveTones.forEach(nt => {
-        if (keySignaturesTones.includes(nt)) {
-            const signature = keySignatures.find(ks => ks.tone === nt).signature;
-            finalTones.push(nt + signature);
+    naiveNotes.forEach(nt => {
+        if (keySignaturesTones.includes(nt.tone)) {
+            const signature = keySignatures.find(ks => ks.tone === nt.tone).signature;
+            finalNotes.push({ tone: nt.tone + signature, septimaArea: nt.septimaArea });
         } else {
-            finalTones.push(nt);
+            finalNotes.push(nt);
         }
     });
 
@@ -53,42 +53,70 @@ const translateNotes = (notes, keySignatures) => {
     ];
 
     naiveTranslationsToProper.forEach(ntp => {
-        if (finalTones.some(ft => ft === ntp.Naive)) {
-            ft = ntp.Proper;
-        }
+        finalNotes.filter(fn => fn.tone === ntp.Naive).forEach(fn => fn.tone = ntp.Proper);
     });
 
-    return finalTones;
+    return finalNotes;
+}
+
+const postExerciseResult = (dateTime, userAnswers, actualTones) => {
+    let exerciseResult = [];
+
+    for (let i = 0; i < userAnswers.length; i++) {
+        exerciseResult.push({
+            Note: actualTones[i],
+            Success: userAnswers[i].toLowerCase() === actualTones[i].tone.toLowerCase()
+        });
+    }
+
+    const inputModel = { ClefType: clefType, DateTime: dateTime.toJSON(), ExerciseResult: exerciseResult };
+
+    fetch('api/SightReadingPractice/exerciseResult', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(inputModel)
+    });
 }
 
 const submitAnswer = () => {
-    const answersElements = document.getElementsByClassName('answer-box');
-    const idealAnswers = translateNotes(notes, keySignatures);
-    let idealCount = 0;
+    const dateTime = new Date(Date.now());
+
+    const answerElements = document.getElementsByClassName('answer-box');
     const submitButton = document.getElementById('submit');
 
     if (submitButton.value === 'Next') {
         location.reload();
         submitButton.value = 'Submit';
 
-        for (let i = 0; i < answersElements.length; i++) {
-            answersElements[i].disabled = false;
+        for (let i = 0; i < answerElements.length; i++) {
+            answerElements[i].disabled = false;
         }
+        return;
     }
 
-    for (let i = 0; i < answersElements.length; i++) {
-        if (answersElements[i].value.toLowerCase() == idealAnswers[i].toLowerCase()) {
-            answersElements[i].classList.remove('incorrect');
-            answersElements[i].classList.add('correct');
-            answersElements[i].disabled = true;
+    let userAnswers = [];
+    for (let i = 0; i < answerElements.length; i++) {
+        userAnswers.push(answerElements[i].value);
+    }
+    const actualTones = translateNotes(notes, keySignatures);
+
+    let idealCount = 0;
+
+    postExerciseResult(dateTime, userAnswers, actualTones);
+
+    for (let i = 0; i < userAnswers.length; i++) {
+        if (userAnswers[i].toLowerCase() == actualTones[i].tone.toLowerCase()) {
+            answerElements[i].classList.remove('incorrect');
+            answerElements[i].classList.add('correct');
+            answerElements[i].disabled = true;
             idealCount++;
         } else {
-            answersElements[i].classList.remove('correct');
-            answersElements[i].classList.add('incorrect');
+            answerElements[i].classList.remove('correct');
+            answerElements[i].classList.add('incorrect');
         }
     }
 
-    if (idealCount === idealAnswers.length) {
+    if (idealCount === actualTones.length) {
         submitButton.value = 'Next';
     }
 }
