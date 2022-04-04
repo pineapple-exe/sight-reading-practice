@@ -23,7 +23,7 @@ const getExercise = () => {
             drawClef(11, 0, 111);
             drawStaff(rowHeight, oneOuterSpace);
             drawKeySignatures(keySignatures, symbolStep, keySignatureYcoordinate);
-            drawNotes(notes, symbolStep, noteYcoordinate, clefType);  
+            drawNotes(notes, symbolStep, noteYcoordinate, clefType);
         });
 }
 

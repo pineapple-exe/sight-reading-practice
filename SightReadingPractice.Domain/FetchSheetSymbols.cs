@@ -14,31 +14,26 @@ namespace SightReadingPractice.Domain
 
         public static SheetSymbolsOutputModel CreateExercise(Random random, ClefType clefType)
         {
-            return new SheetSymbolsOutputModel(GenerateKeySignatures(random), GenerateNotes(random, clefType));
+            Note[] notes = GenerateNotes(random, clefType);
+            string[] teamTones = notes.Select(n => n.Tone).ToArray();
+            KeySignature[] keySignatures = GenerateKeySignatures(random, teamTones);
+
+            return new SheetSymbolsOutputModel(keySignatures, notes);
         }
 
-        //public static SheetSymbolsOutputModel CreateExerciseTest()
-        //{
-        //    KeySignature[] keySignatures = new KeySignature[] { new KeySignature('A', '#'), new KeySignature('B', 'b') };
-        //    Note[] notes = new Note[] { new Note('C', septimaAreas[2]), new Note('D', septimaAreas[1]), new Note('E', septimaAreas[2]), new Note('C', septimaAreas[0]) };
-
-        //    return new SheetSymbolsOutputModel(keySignatures, notes);
-        //}
-
-        private static KeySignature[] GenerateKeySignatures(Random random)
+        private static KeySignature[] GenerateKeySignatures(Random random, string[] teamTones)
         {
             List<KeySignature> keySignatures = new();
-            int randomizedQuantity = random.Next(0, howMany + 1);
+            string[] teamTonesDistinct = teamTones.Distinct().ToArray();
+            int randomizedQuantity = random.Next(0, teamTonesDistinct.Length + 1);
 
             while (keySignatures.Count < randomizedQuantity)
             {
-                string tone = septimaRange[random.Next(0, septimaRange.Length)];
+                string[] toneCandidates = teamTonesDistinct.Where(t => !keySignatures.Any(k => k.Tone == t)).ToArray();
+                string tone = toneCandidates[random.Next(0, toneCandidates.Length)];
                 string keySignatureSign = keySignatureSigns[random.Next(0, keySignatureSigns.Length)];
 
-                if (!keySignatures.Any(x => x.Tone == tone))
-                {
-                    keySignatures.Add(new KeySignature(tone, keySignatureSign));
-                }
+                keySignatures.Add(new KeySignature(tone, keySignatureSign));
             }
 
             return keySignatures.ToArray();
@@ -72,7 +67,7 @@ namespace SightReadingPractice.Domain
                 string tone = septimaRange[random.Next(0, septimaRange.Length)].ToString();
                 int septimaArea = septimaAreas[random.Next(0, septimaAreas.Length)];
 
-                if (!IsOutsideBound(septimaArea, tone, clefType))
+                if (!IsOutsideBound(septimaArea, tone, clefType) && !notes.Any(n => n.Tone == tone && n.SeptimaArea == septimaArea))
                 {
                     notes.Add(new Note(tone, septimaArea));
                 }
