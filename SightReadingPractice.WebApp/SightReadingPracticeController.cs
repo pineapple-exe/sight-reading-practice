@@ -30,18 +30,5 @@ namespace BassClefPractice.WebApp
 
             return Ok();
         }
-        [HttpPost("exerciseResult")]
-        public IActionResult AddExerciseResult(ExerciseResultInputModel exerciseResult)
-        {
-            _noteExerciseInteractor.AddExerciseResult(exerciseResult);
-
-            return Ok();
-        }
-
-        //[HttpGet("sheetSymbolsTest")]
-        //public SheetSymbolsOutputModel GetSheetSymbolsTest()
-        //{
-        //    return FetchSheetSymbols.CreateExerciseTest();
-        //}
     }
 }
