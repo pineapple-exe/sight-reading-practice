@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
+﻿
 namespace SightReadingPractice.Domain
 {
     public class KeySignature
     {
-        public char Tone { get; }
-        public char Signature { get; }
+        public string Tone { get; }
+        public string Signature { get; }
 
-        public KeySignature(char tone, char sign)
+        public KeySignature(string tone, string sign)
         {
             Tone = tone;
             Signature = sign;

@@ -7,8 +7,8 @@ namespace SightReadingPractice.Domain
 {
     public static class FetchSheetSymbols
     {
-        private static readonly char[] septimaRange = new char[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G' };
-        private static readonly char[] keySignatureSigns = new char[] { '#', 'b' };
+        private static readonly string[] septimaRange = new string[] { "A", "B", "C", "D", "E", "F", "G" };
+        private static readonly string[] keySignatureSigns = new string[] { "#", "b" };
         private static readonly int[] septimaAreas = new int[] { -1, 0, 1 };
         private static readonly int howMany = 4;
 
@@ -32,8 +32,8 @@ namespace SightReadingPractice.Domain
 
             while (keySignatures.Count < randomizedQuantity)
             {
-                char tone = septimaRange[random.Next(0, septimaRange.Length)];
-                char keySignatureSign = keySignatureSigns[random.Next(0, keySignatureSigns.Length)];
+                string tone = septimaRange[random.Next(0, septimaRange.Length)];
+                string keySignatureSign = keySignatureSigns[random.Next(0, keySignatureSigns.Length)];
 
                 if (!keySignatures.Any(x => x.Tone == tone))
                 {
@@ -44,7 +44,7 @@ namespace SightReadingPractice.Domain
             return keySignatures.ToArray();
         }
 
-        public static bool IsOutsideBound(int septimaArea, char tone, ClefType clefType)
+        public static bool IsOutsideBound(int septimaArea, string tone, ClefType clefType)
         {
             bool outsideUpperBound;
             bool outsideLowerBound;
@@ -69,7 +69,7 @@ namespace SightReadingPractice.Domain
 
             while (notes.Count < howMany)
             {
-                char tone = septimaRange[random.Next(0, septimaRange.Length)];
+                string tone = septimaRange[random.Next(0, septimaRange.Length)].ToString();
                 int septimaArea = septimaAreas[random.Next(0, septimaAreas.Length)];
 
                 if (!IsOutsideBound(septimaArea, tone, clefType))
