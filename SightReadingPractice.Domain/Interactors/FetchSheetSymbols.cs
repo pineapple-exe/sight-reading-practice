@@ -21,10 +21,10 @@ namespace SightReadingPractice.Domain.Interactors
             _noteExerciseResultRepository = noteExerciseResultRepository;
         }
 
-        public NoteExerciseResult[] GetLatestEntry(ClefType clefType)
+        public NoteExerciseResult[] GetLatestFlawedEntry(ClefType clefType)
         {
             IQueryable<NoteExerciseResult> entries = _noteExerciseResultRepository.GetAllNoteExerciseResults()
-                                                                                  .Where(e => e.ClefType == clefType)
+                                                                                  .Where(e => e.ClefType == clefType && !e.Success)
                                                                                   .OrderBy(e => e.DateTime);
 
             NoteExerciseResult[] latestEntry = entries.Where(e => e.DateTime == entries.Last().DateTime).ToArray();
@@ -34,8 +34,7 @@ namespace SightReadingPractice.Domain.Interactors
 
         public List<Note> GetRecentDifficulties(ClefType clefType)
         {
-            List<Note> failedNotesDistinct = GetLatestEntry(clefType).Where(exercise => !exercise.Success)
-                                                     .Select(exercise => new Note(exercise.ActualTone, exercise.SeptimaArea))
+            List<Note> failedNotesDistinct = GetLatestFlawedEntry(clefType).Select(exercise => new Note(exercise.ActualTone, exercise.SeptimaArea))
                                                      .Distinct()
                                                      .ToList();
 
@@ -89,23 +88,23 @@ namespace SightReadingPractice.Domain.Interactors
 
         private static KeySignature[] GenerateKeySignatures(Random random, List<Note> recentlyFailedNotes, List<string> teamTonesDistinct)
         {
-            recentlyFailedNotes.RemoveAll(n => n.Tone.Length < 2);
             List<KeySignature> keySignatures = new();
 
-            foreach (Note fn in recentlyFailedNotes)
+            foreach (Note fn in recentlyFailedNotes.Where(fn => fn.Tone.Length == 2))
             {
                 keySignatures.Add(new KeySignature(fn.Tone[0].ToString(), fn.Tone[1].ToString()));
             }
 
-            int quantityToAdd = random.Next(0, teamTonesDistinct.Count - keySignatures.Count + 1);
+            List<string> toneCandidates = teamTonesDistinct.Where(t => !recentlyFailedNotes.Any(fn => fn.Tone == t)).ToList();
+            int quantityToAdd = random.Next(0, toneCandidates.Count - keySignatures.Count + 1);
 
             while (keySignatures.Count < quantityToAdd)
             {
-                string[] toneCandidates = teamTonesDistinct.Where(t => !keySignatures.Any(k => k.Tone == t)).ToArray();
-                string tone = toneCandidates[random.Next(0, toneCandidates.Length)];
+                string tone = toneCandidates[random.Next(0, toneCandidates.Count)];
                 string keySignatureSign = keySignatureSigns[random.Next(0, keySignatureSigns.Length)];
 
                 keySignatures.Add(new KeySignature(tone, keySignatureSign));
+                toneCandidates.Remove(tone);
             }
 
             return keySignatures.ToArray();
