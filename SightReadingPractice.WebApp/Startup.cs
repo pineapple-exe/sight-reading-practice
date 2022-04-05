@@ -31,6 +31,7 @@ namespace SightReadingPractice.WebApp
 
             services.AddDbContext<SightReadingPracticeDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddTransient<NoteExerciseInteractor>();
+            services.AddTransient<FetchSheetSymbols>();
             services.AddTransient<INoteExerciseResultRepository, NoteExerciseResultRepository>();
         }
 

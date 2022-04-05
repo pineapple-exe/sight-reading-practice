@@ -24,6 +24,9 @@ const getExercise = () => {
             drawStaff(rowHeight, oneOuterSpace);
             drawKeySignatures(keySignatures, symbolStep, keySignatureYcoordinate);
             drawNotes(notes, symbolStep, noteYcoordinate, clefType);
+
+            console.log(notes);
+            console.log(keySignatures);
         });
 }
 

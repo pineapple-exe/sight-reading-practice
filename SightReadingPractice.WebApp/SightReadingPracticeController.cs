@@ -10,17 +10,19 @@ namespace BassClefPractice.WebApp
     [ApiController]
     public class SightReadingPracticeController : ControllerBase
     {
+        private readonly FetchSheetSymbols _fetchSheetSymbols;
         private readonly NoteExerciseInteractor _noteExerciseInteractor;
 
-        public SightReadingPracticeController(NoteExerciseInteractor noteExerciseInteractor)
+        public SightReadingPracticeController(NoteExerciseInteractor noteExerciseInteractor, FetchSheetSymbols fetchSheetSymbols)
         {
+            _fetchSheetSymbols = fetchSheetSymbols;
             _noteExerciseInteractor = noteExerciseInteractor;
         }
 
         [HttpGet("sheetSymbols")]
         public SheetSymbolsOutputModel GetSheetSymbols(ClefType clefType)
         {
-            return FetchSheetSymbols.CreateExercise(new Random(), clefType);
+            return _fetchSheetSymbols.CreateExercise(new Random(), clefType);
         }
 
         [HttpPost("exerciseResult")]
