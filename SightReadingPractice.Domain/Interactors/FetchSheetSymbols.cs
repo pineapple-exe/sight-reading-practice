@@ -21,24 +21,24 @@ namespace SightReadingPractice.Domain.Interactors
             _noteExerciseResultRepository = noteExerciseResultRepository;
         }
 
-        public NoteExerciseResult[] GetLatestFlawedEntry(ClefType clefType)
+        public List<NoteExerciseResult> GetLatestFlawedEntry(ClefType clefType)
         {
             IQueryable<NoteExerciseResult> entries = _noteExerciseResultRepository.GetAllNoteExerciseResults()
                                                                                   .Where(e => e.ClefType == clefType && !e.Success)
                                                                                   .OrderBy(e => e.DateTime);
 
-            NoteExerciseResult[] latestEntry = entries.Where(e => e.DateTime == entries.Last().DateTime).ToArray();
-
-            return latestEntry;
+            if (!entries.Any()) return null;
+            else return entries.Where(e => e.DateTime == entries.Last().DateTime).ToList();
         }
 
         public List<Note> GetRecentDifficulties(ClefType clefType)
         {
-            List<Note> failedNotesDistinct = GetLatestFlawedEntry(clefType).Select(exercise => new Note(exercise.ActualTone, exercise.SeptimaArea))
-                                                     .Distinct()
-                                                     .ToList();
+            List<NoteExerciseResult> flawedEntry = GetLatestFlawedEntry(clefType);
 
-            return failedNotesDistinct;
+            if (flawedEntry == null) return null;
+            else return flawedEntry.Select(exercise => new Note(exercise.ActualTone, exercise.SeptimaArea))
+                                   .Distinct()
+                                   .ToList();
         }
 
         public static bool IsOutsideBound(int septimaArea, string tone, ClefType clefType)
@@ -60,16 +60,21 @@ namespace SightReadingPractice.Domain.Interactors
             return outsideUpperBound || outsideLowerBound;
         }
 
-        private static Note[] GenerateNotes(Random random, ClefType clefType, List<Note> recentlyFailedNotes)
+        private static Note[] GenerateNotes(Random random, List<Note> recentlyFailedNotes, ClefType clefType)
         {
-            int howMuchRepititionToRemove = random.Next(0, recentlyFailedNotes.Count); //Repeat at least one failed note.
+            List<Note> notes = new();
 
-            for (int i = 0; i < howMuchRepititionToRemove; i++)
-            {
-                recentlyFailedNotes.RemoveAt(random.Next(0, recentlyFailedNotes.Count));
+            if (recentlyFailedNotes != null)
+            { 
+                int howMuchRepititionToRemove = random.Next(0, recentlyFailedNotes.Count); //Repeat at least one failed note.
+
+                for (int i = 0; i < howMuchRepititionToRemove; i++)
+                {
+                    recentlyFailedNotes.RemoveAt(random.Next(0, recentlyFailedNotes.Count));
+                }
+
+                notes = recentlyFailedNotes.Select(fn => new Note(fn.Tone[0].ToString(), fn.SeptimaArea)).ToList();
             }
-
-            List<Note> notes = recentlyFailedNotes.Select(fn => new Note(fn.Tone[0].ToString(), fn.SeptimaArea)).ToList();
 
             while (notes.Count < howMany)
             {
@@ -89,13 +94,18 @@ namespace SightReadingPractice.Domain.Interactors
         private static KeySignature[] GenerateKeySignatures(Random random, List<Note> recentlyFailedNotes, List<string> teamTonesDistinct)
         {
             List<KeySignature> keySignatures = new();
+            List<string> toneCandidates = teamTonesDistinct;
 
-            foreach (Note fn in recentlyFailedNotes.Where(fn => fn.Tone.Length == 2))
+            if (recentlyFailedNotes != null)
             {
-                keySignatures.Add(new KeySignature(fn.Tone[0].ToString(), fn.Tone[1].ToString()));
+                foreach (Note fn in recentlyFailedNotes.Where(fn => fn.Tone.Length == 2))
+                {
+                    keySignatures.Add(new KeySignature(fn.Tone[0].ToString(), fn.Tone[1].ToString()));
+                }
+
+                toneCandidates = teamTonesDistinct.Where(t => !recentlyFailedNotes.Any(fn => fn.Tone == t)).ToList();
             }
 
-            List<string> toneCandidates = teamTonesDistinct.Where(t => !recentlyFailedNotes.Any(fn => fn.Tone == t)).ToList();
             int quantityToAdd = random.Next(0, toneCandidates.Count - keySignatures.Count + 1);
 
             while (keySignatures.Count < quantityToAdd)
@@ -113,7 +123,7 @@ namespace SightReadingPractice.Domain.Interactors
         public SheetSymbolsOutputModel CreateExercise(Random random, ClefType clefType)
         {
             List<Note> recentlyFailedNotes = GetRecentDifficulties(clefType);
-            Note[] notes = GenerateNotes(random, clefType, recentlyFailedNotes);
+            Note[] notes = GenerateNotes(random, recentlyFailedNotes, clefType);
 
             List<string> teamTonesDistinct = notes.Select(n => n.Tone).Distinct().ToList();
 
