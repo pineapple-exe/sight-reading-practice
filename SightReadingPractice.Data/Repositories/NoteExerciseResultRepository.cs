@@ -1,6 +1,7 @@
 ﻿using SightReadingPractice.Domain.Entities;
 using SightReadingPractice.Domain.Repositories;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SightReadingPractice.Data.Repositories
 {
@@ -17,6 +18,11 @@ namespace SightReadingPractice.Data.Repositories
         {
             _context.AddRange(noteExerciseResult);
             _context.SaveChanges();
+        }
+
+        public IQueryable<NoteExerciseResult> GetAllNoteExerciseResults()
+        {
+            return _context.NoteExerciseResults;
         }
     }
 }

@@ -1,4 +1,5 @@
 using SightReadingPractice.Domain;
+using SightReadingPractice.Domain.Interactors;
 using Xunit;
 
 namespace BassClefPractice.Domain.Tests.Unit
