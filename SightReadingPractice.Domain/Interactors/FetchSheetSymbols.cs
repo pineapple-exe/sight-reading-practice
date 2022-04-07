@@ -37,7 +37,6 @@ namespace SightReadingPractice.Domain.Interactors
 
             if (flawedEntry == null) return null;
             else return flawedEntry.Select(exercise => new Note(exercise.ActualTone, exercise.SeptimaArea))
-                                   .Distinct()
                                    .ToList();
         }
 
