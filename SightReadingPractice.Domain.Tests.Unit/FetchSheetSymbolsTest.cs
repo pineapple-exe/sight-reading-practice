@@ -5,6 +5,7 @@ using Xunit;
 using SightReadingPractice.Domain.Tests.Unit.FakeRepositories;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 
 namespace BassClefPractice.Domain.Tests.Unit
 {
@@ -103,5 +104,73 @@ namespace BassClefPractice.Domain.Tests.Unit
             //Assert
             Assert.True(allOutsideScope);
         }
+
+        [Fact]
+        public void GenerateNotes_NormalInput_ExpectedProperties()
+        {
+            //Arrange
+            FakeNoteExerciseResultRepository exerciseResultRepository = new();
+            Random random = new();
+            List<Note> failedNotes = new() { new Note("A", -1), new Note("F#", 0) };
+            Note abbreviatedFailedNote = new(failedNotes[1].Tone[0].ToString(), failedNotes[1].SeptimaArea);
+            ClefType bass = ClefType.Bass;
+
+            for (int i = 0; i < 1000; i++)
+            {
+                //Act
+                RepetitionAndExerciseNotes repetitionAndExerciseNotes = FetchSheetSymbols.GenerateNotes(random, failedNotes, bass);
+                List<Note> generatedNotes = repetitionAndExerciseNotes.GeneratedNotes;
+
+                //Assert
+                Assert.Equal(4, generatedNotes.Count);
+                Assert.Contains(generatedNotes, n => n.Equals(failedNotes[0]) || n.Equals(abbreviatedFailedNote));
+                Assert.Equal(generatedNotes.Distinct().Count(), generatedNotes.Count);
+            }
+        }
+
+        [Fact]
+        public void GenerateKeySignatures_NormalInput_ExpectedProperties()
+        {
+            //Arrange
+            FakeNoteExerciseResultRepository exerciseResultRepository = new();
+            Random random = new();
+            List<string> repetitionSelectionToBeComplemented = new() { "G#" };
+            string abbreviatedFailedTone = repetitionSelectionToBeComplemented[0][0].ToString();
+            string extractedFailedSignature = repetitionSelectionToBeComplemented[0][1].ToString();
+            List<string> teamNotes = new() { "E", "F", "G" };
+            List<int> countRecord = new();
+
+            for (int i = 0; i < 1000; i++)
+            {
+                //Act
+                List<KeySignature> keySignatures = FetchSheetSymbols.GenerateKeySignatures(random, repetitionSelectionToBeComplemented, teamNotes);
+                var keySignatureTones = keySignatures.Select(ks => ks.Tone);
+                var keySignatureSignatures = keySignatures.Select(ks => ks.Signature);
+
+                countRecord.Add(keySignatureTones.Count());
+
+                //Assert
+                Assert.Contains(abbreviatedFailedTone, keySignatureTones);
+                Assert.Contains(extractedFailedSignature, keySignatureSignatures);
+                Assert.DoesNotContain(keySignatures, ks => !teamNotes.Contains(ks.Tone));
+            }
+            //Final assert
+            Assert.NotEqual(1, countRecord.Distinct().Count());
+        }
+
+        //[Fact]
+        //public void CreateExercise_NormalInput_ExpectedRelations()
+        //{
+        //    //Arrange
+        //    FakeNoteExerciseResultRepository exerciseResultRepository = new();
+        //    FetchSheetSymbols fetchSheetSymbols = new(exerciseResultRepository);
+        //    Random random = new();
+        //    ClefType clefType = ClefType.Treble;
+
+        //    //Act
+        //    SheetSymbolsOutputModel sheetSymbols = fetchSheetSymbols.CreateExercise(random, clefType);
+
+        //    //Assert
+        //}
     }
 }

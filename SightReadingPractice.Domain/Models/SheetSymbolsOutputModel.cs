@@ -1,12 +1,13 @@
-﻿
+﻿using System.Collections.Generic;
+
 namespace SightReadingPractice.Domain.Models
 {
     public class SheetSymbolsOutputModel
     {
-        public KeySignature[] KeySignatures { get; }
-        public Note[] Notes { get; }
+        public List<KeySignature> KeySignatures { get; }
+        public List<Note> Notes { get; }
 
-        public SheetSymbolsOutputModel(KeySignature[] keySignatures, Note[] notes)
+        public SheetSymbolsOutputModel(List<KeySignature> keySignatures, List<Note> notes)
         {
             KeySignatures = keySignatures;
             Notes = notes;

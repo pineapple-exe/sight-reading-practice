@@ -59,50 +59,45 @@ namespace SightReadingPractice.Domain.Interactors
             return outsideUpperBound || outsideLowerBound;
         }
 
-        private static Note[] GenerateNotes(Random random, List<Note> recentlyFailedNotes, ClefType clefType)
+        public static RepetitionAndExerciseNotes GenerateNotes(Random random, IEnumerable<Note> recentlyFailedNotes, ClefType clefType)
         {
-            List<Note> notes = new();
+            List<Note> repetitionSelection = new();
+            List<Note> generatedNotes = new();
 
             if (recentlyFailedNotes != null)
-            { 
-                int howMuchRepititionToRemove = random.Next(0, recentlyFailedNotes.Count); //Repeat at least one failed note.
-
-                for (int i = 0; i < howMuchRepititionToRemove; i++)
-                {
-                    recentlyFailedNotes.RemoveAt(random.Next(0, recentlyFailedNotes.Count));
-                }
-
-                notes = recentlyFailedNotes.Select(fn => new Note(fn.Tone[0].ToString(), fn.SeptimaArea)).ToList();
+            {
+                repetitionSelection = recentlyFailedNotes.Shuffle(random).Take(random.Next(1, recentlyFailedNotes.Count())).ToList();
+                generatedNotes = repetitionSelection.Select(n => new Note(n.Tone[0].ToString(), n.SeptimaArea)).ToList();
             }
 
-            while (notes.Count < howMany)
+            while (generatedNotes.Count < howMany)
             {
                 string tone = septimaRange[random.Next(0, septimaRange.Length)];
                 int septimaArea = septimaAreas[random.Next(0, septimaAreas.Length)];
                 Note note = new(tone, septimaArea);
 
-                if (!IsOutsideBound(septimaArea, tone, clefType) && !notes.Contains(note))
+                if (!IsOutsideBound(septimaArea, tone, clefType) && !generatedNotes.Contains(note))
                 {
-                    notes.Add(note);
+                    generatedNotes.Add(note);
                 }
             }
 
-            return notes.ToArray();
+            return new RepetitionAndExerciseNotes(repetitionSelection, generatedNotes.Shuffle(random));
         }
 
-        private static KeySignature[] GenerateKeySignatures(Random random, List<Note> recentlyFailedNotes, List<string> teamTonesDistinct)
+        public static List<KeySignature> GenerateKeySignatures(Random random, List<string> repetitionSelection, List<string> teamTonesDistinct)
         {
             List<KeySignature> keySignatures = new();
             List<string> toneCandidates = teamTonesDistinct;
 
-            if (recentlyFailedNotes != null)
+            if (repetitionSelection != null)
             {
-                foreach (Note fn in recentlyFailedNotes.Where(fn => fn.Tone.Length == 2))
+                foreach (String repetitionTone in repetitionSelection.Where(repetitionTone => repetitionTone.Length == 2))
                 {
-                    keySignatures.Add(new KeySignature(fn.Tone[0].ToString(), fn.Tone[1].ToString()));
+                    keySignatures.Add(new KeySignature(repetitionTone[0].ToString(), repetitionTone[1].ToString()));
                 }
 
-                toneCandidates = teamTonesDistinct.Where(t => !recentlyFailedNotes.Any(fn => fn.Tone == t)).ToList();
+                toneCandidates = teamTonesDistinct.Where(teamTone => !repetitionSelection.Any(repetitionTone => repetitionTone == teamTone)).ToList();
             }
 
             int quantityToAdd = random.Next(0, toneCandidates.Count - keySignatures.Count + 1);
@@ -116,19 +111,22 @@ namespace SightReadingPractice.Domain.Interactors
                 toneCandidates.Remove(tone);
             }
 
-            return keySignatures.ToArray();
+            return keySignatures;
         }
 
         public SheetSymbolsOutputModel CreateExercise(Random random, ClefType clefType)
         {
             List<Note> recentlyFailedNotes = GetRecentDifficulties(clefType);
-            Note[] notes = GenerateNotes(random, recentlyFailedNotes, clefType);
+            RepetitionAndExerciseNotes repetitionAndExerciseNotes = GenerateNotes(random, recentlyFailedNotes, clefType);
 
-            List<string> teamTonesDistinct = notes.Select(n => n.Tone).Distinct().ToList();
+            List<string> teamTonesDistinct = repetitionAndExerciseNotes.GeneratedNotes.Select(n => n.Tone).Distinct().ToList();
+            List<string> repetitionTonesToComplement = repetitionAndExerciseNotes.RepetitionSelection.Where(n => n.Tone.Length > 1)
+                                                                                                   .Select(n => n.Tone)
+                                                                                                   .Distinct().ToList();
 
-            KeySignature[] keySignatures = GenerateKeySignatures(random, recentlyFailedNotes, teamTonesDistinct);
+            List<KeySignature> keySignatures = GenerateKeySignatures(random, repetitionTonesToComplement, teamTonesDistinct);
 
-            return new SheetSymbolsOutputModel(keySignatures, notes);
+            return new SheetSymbolsOutputModel(keySignatures, repetitionAndExerciseNotes.GeneratedNotes);
         }
     }
 }
