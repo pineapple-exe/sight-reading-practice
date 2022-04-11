@@ -18,6 +18,6 @@ Click on Bass Clef or Treble Clef to access a randomized exercise in chosen cont
 * Each exercise will consist of four notes and zero to four key signatures.
 * The four notes will be distinct in tone or octave.
 * No key signature will be passive; it will affect at least one note.
-* At least one note will be a repitition of a recent incorrect answer.
+* At least one note will be a repetition of a recent incorrect answer.
 
 ![image](https://user-images.githubusercontent.com/70913967/160592799-b04887da-4f43-45b0-a652-f7200aee0371.png)
