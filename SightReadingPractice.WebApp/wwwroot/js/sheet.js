@@ -94,25 +94,38 @@ const postExerciseResult = (dateTime, userAnswers, actualTones) => {
     });
 }
 
+const getNextExercise = () => {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    getExercise();
+
+    const answerBoxes = document.getElementsByClassName('answer-box');
+    for (let i = 0; i < answerBoxes.length; i++) {
+        answerBoxes[i].value = '';
+        answerBoxes[i].classList.remove('correct');
+        answerBoxes[i].classList.remove('incorrect');
+        answerBoxes[i].disabled = false;
+    }
+}
+
 const submitAnswer = () => {
     const dateTime = new Date(Date.now());
 
-    const answerElements = document.getElementsByClassName('answer-box');
+    const answerBoxes = document.getElementsByClassName('answer-box');
     const submitButton = document.getElementById('submit');
 
     if (submitButton.value === 'Next') {
-        getExercise();
+        getNextExercise();
         submitButton.value = 'Submit';
 
-        for (let i = 0; i < answerElements.length; i++) {
-            answerElements[i].disabled = false;
+        for (let i = 0; i < answerBoxes.length; i++) {
+            answerBoxes[i].disabled = false;
         }
         return;
     }
 
     let userAnswers = [];
-    for (let i = 0; i < answerElements.length; i++) {
-        userAnswers.push(answerElements[i].value);
+    for (let i = 0; i < answerBoxes.length; i++) {
+        userAnswers.push(answerBoxes[i].value);
     }
     const actualTones = translateNotes(exercise.notes, exercise.keySignatures);
 
@@ -122,13 +135,13 @@ const submitAnswer = () => {
 
     for (let i = 0; i < userAnswers.length; i++) {
         if (userAnswers[i].toLowerCase() == actualTones[i].tone.toLowerCase()) {
-            answerElements[i].classList.remove('incorrect');
-            answerElements[i].classList.add('correct');
-            answerElements[i].disabled = true;
+            answerBoxes[i].classList.remove('incorrect');
+            answerBoxes[i].classList.add('correct');
+            answerBoxes[i].disabled = true;
             idealCount++;
         } else {
-            answerElements[i].classList.remove('correct');
-            answerElements[i].classList.add('incorrect');
+            answerBoxes[i].classList.remove('correct');
+            answerBoxes[i].classList.add('incorrect');
         }
     }
 
