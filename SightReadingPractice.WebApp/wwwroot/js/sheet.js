@@ -10,23 +10,21 @@ const oneOuterSpace = rowHeight * 3;
 const noteYcoordinate = clefType === 0 ? 12 * symbolStep : 12 * symbolStep - symbolStep * 2; // tone: A, septimaArea: 0
 const keySignatureYcoordinate = noteYcoordinate + symbolStep * 2;                            // -"-
 
-let notes;
-let keySignatures;
+let exercise = { id: 0, notes: null, keySignatures: null };
+let score = { correctAnswersTotal: 0, outOfNotesTotal: 0, wrongAnswersTotal: 0, latestEvaluatedExerciseId: null, latestCorrectAnswersCount: null };
 
 const getExercise = () => {
     fetch('/api/SightReadingPractice/sheetSymbols?clefType=' + clefType)
         .then(resp => resp.json())
         .then(data => {
-            notes = data.notes;
-            keySignatures = data.keySignatures;
+            exercise.id++;
+            exercise.notes = data.notes;
+            exercise.keySignatures = data.keySignatures;
 
             drawClef(11, 0, 111);
             drawStaff(rowHeight, oneOuterSpace);
-            drawKeySignatures(keySignatures, symbolStep, keySignatureYcoordinate);
-            drawNotes(notes, symbolStep, noteYcoordinate, clefType);
-
-            console.log(notes);
-            console.log(keySignatures);
+            drawKeySignatures(exercise.keySignatures, symbolStep, keySignatureYcoordinate);
+            drawNotes(exercise.notes, symbolStep, noteYcoordinate, clefType);
         });
 }
 
@@ -62,6 +60,21 @@ const translateNotes = (notes, keySignatures) => {
     return finalNotes;
 }
 
+const presentScore = (correctAnswersCount) => {
+    if (exercise.id == score.latestEvaluatedExerciseId) {
+        score.correctAnswersTotal += correctAnswersCount - score.latestCorrectAnswersCount;
+    } else {
+        score.correctAnswersTotal += correctAnswersCount;
+        score.outOfNotesTotal += exercise.notes.length;
+        score.latestEvaluatedExerciseId = exercise.id;
+    }
+    score.wrongAnswersTotal += exercise.notes.length - correctAnswersCount;
+    score.latestCorrectAnswersCount = correctAnswersCount;
+
+    document.getElementById('total-success').innerHTML = 'Total success: ' + score.correctAnswersTotal + '/' + score.outOfNotesTotal;
+    document.getElementById('wrong-answers').innerHTML = 'Wrong answers: ' + score.wrongAnswersTotal;
+}
+
 const postExerciseResult = (dateTime, userAnswers, actualTones) => {
     let exerciseResult = [];
 
@@ -88,7 +101,7 @@ const submitAnswer = () => {
     const submitButton = document.getElementById('submit');
 
     if (submitButton.value === 'Next') {
-        location.reload();
+        getExercise();
         submitButton.value = 'Submit';
 
         for (let i = 0; i < answerElements.length; i++) {
@@ -101,7 +114,7 @@ const submitAnswer = () => {
     for (let i = 0; i < answerElements.length; i++) {
         userAnswers.push(answerElements[i].value);
     }
-    const actualTones = translateNotes(notes, keySignatures);
+    const actualTones = translateNotes(exercise.notes, exercise.keySignatures);
 
     let idealCount = 0;
 
@@ -118,6 +131,8 @@ const submitAnswer = () => {
             answerElements[i].classList.add('incorrect');
         }
     }
+
+    presentScore(idealCount);
 
     if (idealCount === actualTones.length) {
         submitButton.value = 'Next';

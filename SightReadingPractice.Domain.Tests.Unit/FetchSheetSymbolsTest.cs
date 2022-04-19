@@ -157,20 +157,5 @@ namespace BassClefPractice.Domain.Tests.Unit
             //Final assert
             Assert.NotEqual(1, countRecord.Distinct().Count());
         }
-
-        //[Fact]
-        //public void CreateExercise_NormalInput_ExpectedRelations()
-        //{
-        //    //Arrange
-        //    FakeNoteExerciseResultRepository exerciseResultRepository = new();
-        //    FetchSheetSymbols fetchSheetSymbols = new(exerciseResultRepository);
-        //    Random random = new();
-        //    ClefType clefType = ClefType.Treble;
-
-        //    //Act
-        //    SheetSymbolsOutputModel sheetSymbols = fetchSheetSymbols.CreateExercise(random, clefType);
-
-        //    //Assert
-        //}
     }
 }
